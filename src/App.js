@@ -1,5 +1,8 @@
 import { useState } from "react";
 import "./App.css";
+import { Grid, LinearProgress, Stack, linearProgressClasses } from "@mui/material";
+import InternalContent from "./InternalContent";
+import styled from "@emotion/styled";
 
 const questions = [
   {
@@ -41,56 +44,57 @@ const questions = [
   },
 ];
 
+const CustomLinearProgress = styled(LinearProgress)(({ datatype }) => ({
+  height: 6,
+  borderRadius: 5,
+  [`&.${linearProgressClasses.colorPrimary}`]: {
+    backgroundColor: 'light gray',
+  },
+  [`& .${linearProgressClasses.bar}`]: {
+    borderRadius: 5,
+    backgroundColor:
+      datatype === 'wrong'
+        ? 'red'
+        : 'green',
+  },
+}));
+
 function App() {
   const [showScore, setShowScore] = useState(false);
   const [score, setScore] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState(0);
-
-  function handleAnswer(isCorrect) {
-    if (isCorrect) {
-      setScore(score + 1);
-    }
-
-    const nextQuestion = currentQuestion + 1;
-    if (nextQuestion < questions.length) {
-      setCurrentQuestion(nextQuestion);
-    } else {
-      setShowScore(true);
-    }
-  }
-
+  // console.log(score);
   return (
-    <div className="app">
-      {showScore ? (
-        <div className="score-section">
-          Você pontuou {score} de {questions.length}
-        </div>
-      ) : (
-        <>
-          <div className="question-section">
-            <div className="question-count">
-              <span>Questão {currentQuestion + 1}</span>/{questions.length}
-            </div>
-            <div className="question-text">
-              {questions[currentQuestion].questionText}
-            </div>
-          </div>
+    <Stack direction="column" spacing={2}>
+      <Grid container spacing={2} justifyContent="center">
+        <Grid item xs>
+          <CustomLinearProgress
+            variant="determinate"
+            value={score * 25}
+            datatype="right"
+          />
+        </Grid>
+        <Grid item xs>
+          <CustomLinearProgress
+            variant="determinate"
+            value={(currentQuestion - score) * 25}
+            datatype='wrong'
+          />
+        </Grid>
+      </Grid>
 
-          <div className="answer-section">
-            {questions[currentQuestion].answerOptions.map(
-              (answerOption, index) => (
-                <button
-                  onClick={() => handleAnswer(answerOption.isCorrect)}
-                  key={index}
-                >
-                  {answerOption.answerText}
-                </button>
-              )
-            )}
-          </div>
-        </>
-      )}
-    </div>
+      {/*
+       */}
+      <InternalContent
+        questions={questions}
+        score={score}
+        setScore={setScore}
+        currentQuestion={currentQuestion}
+        setCurrentQuestion={setCurrentQuestion}
+        showScore={showScore}
+        setShowScore={setShowScore}
+      />
+    </Stack>
   );
 }
 
